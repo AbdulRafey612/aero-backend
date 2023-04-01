@@ -1,28 +1,33 @@
-var createError = require('http-errors');
-var express = require('express');
-var path = require('path');
-var cookieParser = require('cookie-parser');
-var logger = require('morgan');
-//Database Logic
-const Minio = require('minio');
+import createError from 'http-errors';
+import express from 'express';
+import path from 'path';
+import { fileURLToPath } from 'url';
+import cookieParser from 'cookie-parser';
+import morgan from 'morgan';
+import * as dotenv from 'dotenv';
+import indexRouter from './routes/indexRouter.js';
+import usersRouter from './routes/usersRouter.js';
+import fileRouter from './routes/fileRouter.js';
+import { minioClient} from "./db.js";
 
-const minioClient = new Minio.Client({
-  endPoint: 'play.min.io',
-  port: 9000,
-  useSSL: true,
-  accessKey: 'minioadmin',
-  secretKey: 'minioadmin',
-})
-minioClient.makeBucket('funny-bucket', 'us-east-1', function(err, bucketName) {
-  if (err) return console.log('Error creating bucket:', err)
-  console.log('Bucket created successfully:', bucketName)
-})
+dotenv.config();
+
+const __filename = fileURLToPath(import.meta.url);
+
+const __dirname = path.dirname(__filename);
+
+
+
+// minioClient.makeBucket('another-test-bucket', 'us-east-1', function(err, bucketName) {
+//   if (err) return console.log('Error creating bucket:', err)
+//   console.log('Bucket created successfully:', bucketName)
+// })
+console.log(await minioClient.listBuckets());
 minioClient.listBuckets((err, buckets) => {
+  console.log("You were here");
   if (err) throw err
   console.log('Buckets:', buckets)
 }) 
-var indexRouter = require('./routes/index');
-var usersRouter = require('./routes/users');
 
 var app = express();
 
@@ -30,7 +35,7 @@ var app = express();
 app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'jade');
 
-app.use(logger('dev'));
+app.use(morgan('dev'));
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
@@ -38,6 +43,7 @@ app.use(express.static(path.join(__dirname, 'public')));
 
 app.use('/', indexRouter);
 app.use('/users', usersRouter);
+app.use('/file',fileRouter);
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {
@@ -55,4 +61,4 @@ app.use(function(err, req, res, next) {
   res.render('error');
 });
 
-module.exports = app;
+export default app;

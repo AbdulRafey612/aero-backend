@@ -4,9 +4,10 @@
  * Module dependencies.
  */
 
-var app = require('../app');
-var debug = require('debug')('aero-backend:server');
-var http = require('http');
+import app from '../app.js';
+import debug from 'debug';
+var debugServer = debug('aero-backend:server');
+import http from 'http';
 
 /**
  * Get port from environment and store in Express.
@@ -86,5 +87,5 @@ function onListening() {
   var bind = typeof addr === 'string'
     ? 'pipe ' + addr
     : 'port ' + addr.port;
-  debug('Listening on ' + bind);
+  debugServer('Listening on ' + bind);
 }
