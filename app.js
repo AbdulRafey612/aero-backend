@@ -5,29 +5,16 @@ import { fileURLToPath } from 'url';
 import cookieParser from 'cookie-parser';
 import morgan from 'morgan';
 import * as dotenv from 'dotenv';
-import indexRouter from './routes/indexRouter.js';
 import usersRouter from './routes/usersRouter.js';
-import fileRouter from './routes/fileRouter.js';
+import storageRouterBackup from './routes/storageRouterBackup.js';
 import { minioClient} from "./db.js";
+import cors from 'cors';
 
 dotenv.config();
 
 const __filename = fileURLToPath(import.meta.url);
 
 const __dirname = path.dirname(__filename);
-
-
-
-// minioClient.makeBucket('another-test-bucket', 'us-east-1', function(err, bucketName) {
-//   if (err) return console.log('Error creating bucket:', err)
-//   console.log('Bucket created successfully:', bucketName)
-// })
-console.log(await minioClient.listBuckets());
-minioClient.listBuckets((err, buckets) => {
-  console.log("You were here");
-  if (err) throw err
-  console.log('Buckets:', buckets)
-}) 
 
 var app = express();
 
@@ -40,10 +27,12 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
+app.use(cors({
+  origin: process.env.URI
+}))
 
-app.use('/', indexRouter);
 app.use('/users', usersRouter);
-app.use('/file',fileRouter);
+app.use('/',storageRouterBackup);
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {
@@ -58,7 +47,7 @@ app.use(function(err, req, res, next) {
 
   // render the error page
   res.status(err.status || 500);
-  res.render('error');
+  res.render('error')
 });
 
 export default app;

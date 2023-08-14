@@ -6,11 +6,8 @@ dotenv.config();
 
 const URI = process.env.MONGO_URI;
 const connectionParams = {
-      useNewUrlParser: true,
-      useUnifiedTopology: true
     }
 export const mongodb = ()=>{
-  console.log("This code is running")
     try {
       mongoose.connect(URI,connectionParams)
       .then(()=>{
@@ -26,9 +23,9 @@ export const mongodb = ()=>{
 mongodb();
 
 export const minioClient = new Minio.Client({
-    endPoint: 'play.min.io',
+    endPoint: 'localhost',
     port: 9000,
-    useSSL: true,
+    useSSL: false,
     accessKey: process.env.MINIO_ACCESS,
     secretKey: process.env.MINIO_SECRET,
   });
